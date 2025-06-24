@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swe645-hw2-webapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: swe645-hw2-webapp
+  template:
+    metadata:
+      labels:
+        app: swe645-hw2-webapp
+    spec:
+      containers:
+      - name: swe645-hw2-webapp-container
+        image: princekarma/swe645-hw2-webapp:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
