@@ -15,6 +15,5 @@ spec:
       containers:
       - name: swe645-hw2-webapp-container
         image: princekarma/swe645-hw2-webapp:latest
-        imagePullPolicy: Always
         ports:
         - containerPort: 80

@@ -3,10 +3,11 @@ kind: Service
 metadata:
   name: swe645-hw2-webapp-service
 spec:
+  type: NodePort
   selector:
     app: swe645-hw2-webapp
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
-  type: LoadBalancer      
+      nodePort: 30080
