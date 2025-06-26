@@ -19,18 +19,14 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build Docker image using Jenkins Docker Pipeline plugin
                     dockerImage = docker.build("${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}")
-                    // Also tag with build number for versioning
                     dockerImage.tag("${env.BUILD_NUMBER}")
                 }
             }
         }
-
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    // Use docker.withRegistry for authentication as shown in class notes
                     docker.withRegistry('https://registry.hub.docker.com', 'DockerCreds') {
                         dockerImage.push("${IMAGE_TAG}")
                         dockerImage.push("${env.BUILD_NUMBER}")
@@ -38,7 +34,6 @@ pipeline {
                 }
             }
         }
-
         stage('Update Kubernetes Deployment') {
             steps {
                 script {
@@ -46,12 +41,8 @@ pipeline {
                         sh """
                             sed -i 's|${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}|${DOCKERHUB_USER}/${IMAGE_NAME}:${env.BUILD_NUMBER}|g' ${DEPLOYMENT_YAML}
                         """
-                        
-                        // Apply Kubernetes manifests
                         sh "kubectl apply -f ${DEPLOYMENT_YAML}"
                         sh "kubectl apply -f ${SERVICE_YAML}"
-                        
-                        // Verify deployment
                         sh "kubectl rollout status deployment/swe645-hw2-webapp"
                     }
                 }
@@ -68,7 +59,6 @@ pipeline {
             echo 'Pipeline failed. Please check the logs for errors.'
         }
         always {
-            // Clean up Docker images from Jenkins agent
             script {
                 try {
                     sh "docker rmi ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} || true"
