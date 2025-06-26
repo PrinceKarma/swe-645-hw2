@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('DockerRegistryCreds')
-        KUBECONFIG = credentials('KubeConfigCreds')
+        DOCKER_HUB_CREDENTIALS = credentials('DockerCreds')
+        KUBECONFIG = credentials('KubeCreds')
         DOCKER_IMAGE_NAME = "princekarma/swe645-hw2-webapp"
     }
 
