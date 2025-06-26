@@ -6,6 +6,8 @@ pipeline {
         KUBECONFIG = credentials('KubeCreds')
         DOCKER_IMAGE_NAME = "princekarma/swe645-hw2-webapp"
         GITHUB_REPO = "PrinceKarma/swe-645-hw2"
+        DEPLOYMENT_YAML = "k8/deployment.yaml"
+        SERVICE_YAML = "k8/service.yaml"
     }
 
     stages {
@@ -41,8 +43,8 @@ pipeline {
             steps {
                 script {
                     // Apply the Kubernetes manifests
-                    sh "kubectl apply -f deployment.yaml"
-                    sh "kubectl apply -f service.yaml"
+                    sh "kubectl apply -f ${DEPLOYMENT_YAML}"
+                    sh "kubectl apply -f ${SERVICE_YAML}"
                     // Force a rolling update of the deployment
                     sh "kubectl set image deployment/swe645-hw2-webapp swe645-hw2-webapp-container=${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
                 }
