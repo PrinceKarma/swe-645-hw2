@@ -5,7 +5,7 @@ This document provides a complete guide to deploying a containerized web applica
 ---
 
 ## Links
-
+- Website: http://ec2-44-217-167-34.compute-1.amazonaws.com:30080/
 - Rancher UI: https://ec2-44-217-167-34.compute-1.amazonaws.com/
 - Jenkins UI: http://ec2-34-195-150-49.compute-1.amazonaws.com:8080/
 
@@ -23,8 +23,7 @@ This document provides a complete guide to deploying a containerized web applica
 
 ## Table of Contents
 
-* [Project Structure](#1-project-structure)
-* [Prerequisites](#2-prerequisites)
+* [Prerequisites](#prerequisites)
 * [Step 1: Setting up the Git Repository](#step-1-setting-up-the-git-repository)
 * [Step 2: Creating the Docker Image and Setting Up Docker Hub](#step-2-creating-the-docker-image-and-setting-up-docker-hub)
 * [Step 3: Set Up a Kubernetes Cluster with Rancher](#step-3-set-up-a-kubernetes-cluster-with-rancher)
@@ -34,22 +33,7 @@ This document provides a complete guide to deploying a containerized web applica
 
 ---
 
-## 1. Project Structure
-
-Your final project directory should be organized as follows:
-
-.
-├── Dockerfile
-├── Jenkinsfile
-├── README.md
-├── k8
-│   ├── deployment.yaml
-│   └── service.yaml
-└── webapp
-    ├── index.html
-    └── survey.html
-
-## 2. Prerequisites
+## Prerequisites
 
 Before you begin, ensure you have the following:
 
@@ -170,7 +154,7 @@ We will first set up the Rancher management server and then use it to provision 
 
 
 
-### Part B: Set Up Jenkins Server
+### Step 4: Set Up the Jenkins Server
 
 You need a separate server to run Jenkins.
 
@@ -212,7 +196,7 @@ You need a separate server to run Jenkins.
         - Kubernetes
         - Rancher
 
-### Part C: Create and Run the CI/CD Pipeline
+### Step 5: Create and Run the CI/CD Pipeline
 
 -   **Push Code to GitHub**: Commit all your project files and push them to a new GitHub repository.
 -   **Create Pipeline in Jenkins**:
@@ -228,13 +212,12 @@ You need a separate server to run Jenkins.
 
 ---
 
-## 4. Accessing the Application
+### Step 6: Accessing the Application
 
 Once your Jenkins pipeline completes successfully:
 
 -   **Find the Load Balancer IP**:
-    -   In the Rancher UI, navigate to your cluster > **Service Discovery > Services**.
-    -   Find the `swe645-webapp-service` and look for the external IP address assigned to it under the "Endpoints" column.
+    -   Access the webstie in your browser at `http://<RANCHER_SERVER_IP>:30080` 
     -   Alternatively, use `kubectl` with your Rancher `kubeconfig` file:
         ```bash
         kubectl get service swe645-webapp-service
@@ -242,9 +225,9 @@ Once your Jenkins pipeline completes successfully:
 -   **Open in Browser**: Paste the external IP address into your web browser. You should see your deployed web application.
 
 
-Appendix
+### References
 - https://www.jenkins.io/doc/tutorials/tutorial-for-installing-jenkins-on-AWS/
 - https://www.rancher.com/quick-start
 - https://kubernetes.io/docs/concepts/services-networking/service/
-
+- https://docs.docker.com/get-started/
 
