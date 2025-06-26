@@ -42,8 +42,7 @@ pipeline {
         stage('Update Kubernetes Deployment') {
             steps {
                 script {
-                    // Use withCredentials for kubeconfig as shown in class notes
-                    withCredentials([file(credentialsId: 'kubeconfig-id', variable: 'KubeCreds')]) {
+                    withCredentials([file(credentialsId: 'KubeCreds', variable: 'KUBECONFIG')]) {
                         sh """
                             sed -i 's|${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}|${DOCKERHUB_USER}/${IMAGE_NAME}:${env.BUILD_NUMBER}|g' ${DEPLOYMENT_YAML}
                         """
