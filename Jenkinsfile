@@ -5,13 +5,14 @@ pipeline {
         DOCKER_HUB_CREDENTIALS = credentials('DockerCreds')
         KUBECONFIG = credentials('KubeCreds')
         DOCKER_IMAGE_NAME = "princekarma/swe645-hw2-webapp"
+        GITHUB_REPO = "PrinceKarma/swe-645-hw2"
     }
 
     stages {
         stage('Checkout') {
             steps {
                 // Checkout the source code from GitHub
-                git 'https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME.git'
+                git "https://github.com/${GITHUB_REPO}.git"
             }
         }
 
