@@ -4,6 +4,13 @@ This document provides a complete guide to deploying a containerized web applica
 
 ---
 
+## Links
+
+- Rancher UI: https://ec2-44-217-167-34.compute-1.amazonaws.com/
+- Jenkins UI: http://ec2-34-195-150-49.compute-1.amazonaws.com:8080/
+
+---
+
 ## Key Technologies
 
 -   **Frontend**: HTML, CSS, JavaScript
@@ -124,6 +131,7 @@ We will first set up the Rancher management server and then use it to provision 
         * **Type**: `SSH` (Port 22) | **Source**: `My IP`
         * **Type**: `HTTP` (Port 80) | **Source**: `Anywhere`
         * **Type**: `HTTPS` (Port 443) | **Source**: `Anywhere`
+        * **Type**: `Custom TCP` (Port 30080) | **Source**: `Anywhere`
     * **Assign an Elastic IP**: After the instance is running, assign an Elastic IP address to it so its public IP address does not change.
 
 
@@ -167,28 +175,29 @@ We will first set up the Rancher management server and then use it to provision 
 You need a separate server to run Jenkins.
 
 -   **Launch EC2 Instance**: Create a new `t3.medium` EC2 instance for Jenkins with a security group that allows inbound traffic on port `22` (SSH) and `8080` (Jenkins UI).
+    * **Assign an Elastic IP**: After the instance is running, assign an Elastic IP address to it so its public IP address does not change.
+
 -   **Install Tools**: SSH into the Jenkins server and run this script to install Jenkins, Docker, and kubectl.
     ```bash
     # Update, install Java and Git
-    sudo apt-get update -y
-    sudo apt-get install -y openjdk-11-jre git
+    sudo apt update && sudo apt upgrade
+    sudo apt install -y openjdk-17-jdk git
 
     # Install Jenkins
-    curl -fsSL [https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key](https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key) | sudo tee \
-      /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-    echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-      [https://pkg.jenkins.io/debian-stable](https://pkg.jenkins.io/debian-stable) binary/ | sudo tee \
-      /etc/apt/sources.list.d/jenkins.list > /dev/null
-    sudo apt-get update -y
-    sudo apt-get install -y jenkins
+    sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
+    https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \
+    https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+    /etc/apt/sources.list.d/jenkins.list > /dev/null
+    sudo apt-get update
+    sudo apt-get install jenkins
 
     # Install Docker
     sudo apt-get install -y docker.io
     sudo usermod -aG docker jenkins # Allow Jenkins to use Docker
 
     # Install kubectl
-    curl -LO "[https://dl.k8s.io/release/$(curl](https://dl.k8s.io/release/$(curl) -L -s [https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl](https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl)"
-    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    sudo snap install kubectl --classic
 
     # Restart Jenkins to apply permissions
     sudo systemctl restart jenkins
@@ -196,8 +205,12 @@ You need a separate server to run Jenkins.
 -   **Jenkins Setup Wizard**: Access Jenkins in your browser at `http://<JENKINS_SERVER_IP>:8080` and complete the setup wizard. The initial password can be found by running `sudo cat /var/lib/jenkins/secrets/initialAdminPassword` on your Jenkins server. Choose to "Install suggested plugins".
 -   **Configure Credentials**:
     1.  Navigate to **Manage Jenkins > Credentials > System > Global credentials**.
-    2.  **Docker Hub**: Add new "**Username with password**" credentials. Use your Docker Hub username and password, and set the ID to the one you defined in your `Jenkinsfile` (e.g., `your-docker-hub-credential-id`).
-    3.  **Kubernetes**: Add new "**Secret file**" credentials. Paste the `kubeconfig` content you copied from Rancher, and set the ID to the one you defined in your `Jenkinsfile` (e.g., `your-kubeconfig-credential-id`).
+    2.  **Docker Hub**: Add new "**Username with password**" credentials. Use your Docker Hub username and password, and set the ID to the one you defined in your `Jenkinsfile` (e.g., `DockerCreds`).
+    3.  **Kubernetes**: Add new "**Secret file**" credentials. Paste the `kubeconfig` content you copied from Rancher, and set the ID to the one you defined in your `Jenkinsfile` (e.g., `KubeCreds`).
+    4. Add additional plugins
+        - Docker pipeline
+        - Kubernetes
+        - Rancher
 
 ### Part C: Create and Run the CI/CD Pipeline
 
