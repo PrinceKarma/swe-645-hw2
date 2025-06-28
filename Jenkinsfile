@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+
     environment {
         DOCKERHUB_USER = "princekarma"
         IMAGE_NAME = "swe645-hw2-webapp"
